@@ -42,12 +42,14 @@ export async function renderAvatarVideo(script, { outputPath }) {
   });
 
   const generateData = await generateRes.json();
-  if (!generateRes.ok || !generateData?.data?.id) {
+  // Note: HeyGen's actual response uses "video_id" here, not "id" as some
+  // docs suggest — confirmed against a real API response.
+  if (!generateRes.ok || !generateData?.data?.video_id) {
     throw new Error(
       `HeyGen generate request failed: ${JSON.stringify(generateData)}`
     );
   }
-  const videoId = generateData.data.id;
+  const videoId = generateData.data.video_id;
 
   // 2. Poll for completion
   const videoUrl = await pollUntilComplete(videoId, apiKey);
@@ -82,7 +84,7 @@ async function pollUntilComplete(
         `HeyGen render failed: ${data?.data?.failure_message || JSON.stringify(data)}`
       );
     }
-    // pending / processing -> keep polling
+    // waiting / pending / processing -> keep polling
     await new Promise((r) => setTimeout(r, intervalMs));
   }
   throw new Error(
