@@ -5,13 +5,13 @@ import { pipeline } from "stream/promises";
 const HEYGEN_BASE = "https://api.heygen.com";
 
 /**
- * Submits a script to HeyGen's v2 video generation endpoint using a
- * pre-selected avatar + voice, then polls v1/video_status.get until the
- * render finishes, then downloads the resulting MP4.
+ * Submits a script to HeyGen's v3 video generation endpoint (POST /v3/videos)
+ * using a pre-selected avatar + voice, then polls GET /v3/videos/{id} until
+ * the render finishes, then downloads the resulting MP4.
  *
- * Verify field names against https://docs.heygen.com/reference/create-video
- * before relying on this in production — HeyGen's API has changed shape
- * before (v1 -> v2 -> "New AI Studio") and may again.
+ * v1/v2 are legacy and scheduled for removal 2026-10-31 — this uses the
+ * current v3 "CreateVideoFromAvatar" schema. See
+ * https://developers.heygen.com/endpoint-version-comparison for reference.
  */
 export async function renderAvatarVideo(script, { outputPath }) {
   const apiKey = process.env.HEYGEN_API_KEY;
@@ -25,41 +25,29 @@ export async function renderAvatarVideo(script, { outputPath }) {
   }
 
   // 1. Submit the render job
-  const generateRes = await fetch(`${HEYGEN_BASE}/v2/video/generate`, {
+  const generateRes = await fetch(`${HEYGEN_BASE}/v3/videos`, {
     method: "POST",
     headers: {
       "X-Api-Key": apiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      video_inputs: [
-        {
-          character: {
-            type: "avatar",
-            avatar_id: avatarId,
-            avatar_style: "normal",
-          },
-          voice: {
-            type: "text",
-            input_text: script,
-            voice_id: voiceId,
-            speed: 1,
-          },
-        },
-      ],
-      dimension: { width: 1080, height: 1920 }, // vertical, for Shorts
-      aspect_ratio: "9:16",
-      test: process.env.HEYGEN_TEST_MODE === "true",
+      type: "avatar",
+      avatar_id: avatarId,
+      script,
+      voice_id: voiceId,
+      resolution: "1080p",
+      aspect_ratio: "9:16", // vertical, for Shorts
     }),
   });
 
   const generateData = await generateRes.json();
-  if (!generateRes.ok || !generateData?.data?.video_id) {
+  if (!generateRes.ok || !generateData?.data?.id) {
     throw new Error(
       `HeyGen generate request failed: ${JSON.stringify(generateData)}`
     );
   }
-  const videoId = generateData.data.video_id;
+  const videoId = generateData.data.id;
 
   // 2. Poll for completion
   const videoUrl = await pollUntilComplete(videoId, apiKey);
@@ -80,10 +68,9 @@ async function pollUntilComplete(
   { intervalMs = 10_000, maxAttempts = 60 } = {}
 ) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const res = await fetch(
-      `${HEYGEN_BASE}/v1/video_status.get?video_id=${videoId}`,
-      { headers: { "X-Api-Key": apiKey } }
-    );
+    const res = await fetch(`${HEYGEN_BASE}/v3/videos/${videoId}`, {
+      headers: { "X-Api-Key": apiKey },
+    });
     const data = await res.json();
     const status = data?.data?.status;
 
@@ -91,9 +78,11 @@ async function pollUntilComplete(
       return data.data.video_url;
     }
     if (status === "failed") {
-      throw new Error(`HeyGen render failed: ${JSON.stringify(data)}`);
+      throw new Error(
+        `HeyGen render failed: ${data?.data?.failure_message || JSON.stringify(data)}`
+      );
     }
-    // pending / processing / waiting -> keep polling
+    // pending / processing -> keep polling
     await new Promise((r) => setTimeout(r, intervalMs));
   }
   throw new Error(
