@@ -3,7 +3,7 @@ name: Daily Avatar Video + LinkedIn Post
 on:
   schedule:
     # 9:00 AM SGT = 1:00 AM UTC
-    - cron: "0 1 * * *"
+    - cron: "0 3 * * *"
   workflow_dispatch: {} # allows manual "Run workflow" trigger for testing
 
 jobs:
