@@ -29,12 +29,17 @@ export function burnCaptions({ videoPath, srtPath, outputPath }) {
     "MarginV=220",                 // clear of YouTube's Shorts UI overlay
   ].join(",");
 
+  // original_size tells libass to treat FontSize/MarginV as relative to
+  // the video's real 1080x1920 canvas. Without it, libass falls back to a
+  // small default script resolution and then scales everything up to fit
+  // the actual frame — which was making the text render far too large and
+  // overflow past the top of the video.
   execFileSync(
     "ffmpeg",
     [
       "-y",
       "-i", videoPath,
-      "-vf", `subtitles=${escapedSrtPath}:force_style='${style}'`,
+      "-vf", `subtitles=${escapedSrtPath}:original_size=1080x1920:force_style='${style}'`,
       "-c:a", "copy",
       outputPath,
     ],
