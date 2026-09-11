@@ -38,7 +38,8 @@ async function main() {
   }
 
   const videoPath = path.join(outDir, "video.mp4");
-  const testMode = process.env.HEYGEN_TEST_MODE === "true";
+  const testMode = (process.env.HEYGEN_TEST_MODE || "").trim().toLowerCase() === "true";
+  console.log(`      (debug) HEYGEN_TEST_MODE raw value: "${process.env.HEYGEN_TEST_MODE}" -> testMode=${testMode}`);
   let duration;
   if (testMode) {
     console.log("[4/7] HEYGEN_TEST_MODE=true — skipping HeyGen entirely, using a placeholder video instead...");
