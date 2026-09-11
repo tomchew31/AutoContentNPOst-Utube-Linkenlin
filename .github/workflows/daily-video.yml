@@ -5,7 +5,7 @@ on:
     # 9:05 AM MYT/SGT = 1:05 AM UTC (offset 5 min past the hour, since
     # exact-hour schedules are more prone to delay/drop during GitHub's
     # peak congestion windows)
-    - cron: "5 1 * * *"
+    - cron: "16 3 * * *"
   workflow_dispatch: {} # allows manual "Run workflow" trigger for testing
 
 jobs:
