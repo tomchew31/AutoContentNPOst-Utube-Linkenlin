@@ -89,6 +89,25 @@ output quality, flip it to `public` in the workflow file.
    Names must match exactly (e.g. `ANTHROPIC_API_KEY`, `HEYGEN_API_KEY`, etc.)
    — these are what the workflow file references.
 
+## Testing without spending HeyGen credits
+
+When manually running via GitHub's Actions UI ("Run workflow"), a "test_mode"
+checkbox appears — check it to skip HeyGen entirely and use a placeholder
+video instead (zero HeyGen cost, useful for testing captions/upload).
+
+When triggering via the API (cron-job.org or otherwise), pass it in the
+request body's `inputs` field, e.g.:
+```json
+{"ref":"main","inputs":{"test_mode":"true"}}
+```
+Your daily cron-job.org job should NOT include this — omitting `inputs`
+entirely defaults to `test_mode: false`, which is what you want for real
+automated runs.
+
+This is a workflow input, not a GitHub secret — deliberately, since an
+earlier version of this pipeline tried to control it via a secret and it
+was unreliable to edit correctly through GitHub's Secrets UI.
+
 ## Captions
 
 Captions are burned directly onto the video (visible automatically, no

@@ -4,7 +4,12 @@ on:
   # Native GitHub schedule intentionally disabled — cron-job.org (external)
   # is the sole trigger now, to avoid double-firing and duplicate posts.
   # See README for the cron-job.org setup.
-  workflow_dispatch: {} # still allows manual "Run workflow" for testing, and is what cron-job.org calls
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "Skip HeyGen and use a placeholder video (no credits used)"
+        type: boolean
+        default: false
 
 jobs:
   publish:
@@ -28,7 +33,7 @@ jobs:
           HEYGEN_API_KEY: ${{ secrets.HEYGEN_API_KEY }}
           HEYGEN_AVATAR_ID: ${{ secrets.HEYGEN_AVATAR_ID }}
           HEYGEN_VOICE_ID: ${{ secrets.HEYGEN_VOICE_ID }}
-          HEYGEN_TEST_MODE: "false"
+          HEYGEN_TEST_MODE: ${{ inputs.test_mode }}
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
