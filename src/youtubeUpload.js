@@ -2,6 +2,40 @@ import { google } from "googleapis";
 import fs from "fs";
 
 /**
+ * Uploads an English caption track for an existing YouTube video.
+ * https://developers.google.com/youtube/v3/docs/captions/insert
+ */
+export async function uploadCaptions({ videoId, srtContent }) {
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.YOUTUBE_CLIENT_ID,
+    process.env.YOUTUBE_CLIENT_SECRET
+  );
+  oauth2Client.setCredentials({
+    refresh_token: process.env.YOUTUBE_REFRESH_TOKEN,
+  });
+
+  const youtube = google.youtube({ version: "v3", auth: oauth2Client });
+
+  const res = await youtube.captions.insert({
+    part: ["snippet"],
+    requestBody: {
+      snippet: {
+        videoId,
+        language: "en",
+        name: "English",
+        isDraft: false,
+      },
+    },
+    media: {
+      mimeType: "application/octet-stream",
+      body: srtContent,
+    },
+  });
+
+  return res.data;
+}
+
+/**
  * Uploads a finished video to YouTube as a Short/video.
  *
  * Requires a one-time OAuth setup (see README) to obtain a refresh token
@@ -32,8 +66,6 @@ export async function uploadToYouTube({ filePath, title, description, tags }) {
         categoryId: "22", // People & Blogs; change if a better fit exists
       },
       status: {
-        // "private" (default) lets you review before publishing;
-        // switch to "public" once you trust the pipeline end to end.
         privacyStatus: process.env.YOUTUBE_PUBLISH_STATUS || "private",
         selfDeclaredMadeForKids: false,
       },

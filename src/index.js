@@ -5,8 +5,9 @@ import { pickTopic } from "./pickTopic.js";
 import { research } from "./research.js";
 import { generateScript, generateLinkedInPost } from "./generateScript.js";
 import { renderAvatarVideo } from "./heygenRender.js";
-import { uploadToYouTube } from "./youtubeUpload.js";
+import { uploadToYouTube, uploadCaptions } from "./youtubeUpload.js";
 import { postToLinkedIn } from "./linkedinPost.js";
+import { buildSrt } from "./buildSrt.js";
 
 const DRY_RUN = process.env.DRY_RUN === "true";
 
@@ -36,8 +37,8 @@ async function main() {
 
   const videoPath = path.join(outDir, "video.mp4");
   console.log("[4/6] Rendering avatar video with HeyGen (this can take a few minutes)...");
-  await renderAvatarVideo(script, { outputPath: videoPath });
-  console.log(`      Saved to ${videoPath}`);
+  const { duration } = await renderAvatarVideo(script, { outputPath: videoPath });
+  console.log(`      Saved to ${videoPath} (duration: ${duration}s)`);
 
   console.log("[5/6] Uploading to YouTube...");
   const ytResult = await uploadToYouTube({
@@ -47,6 +48,17 @@ async function main() {
     tags: ["ecommerce", "singapore", "shopee", "lazada", "tiktokshop", "wms"],
   });
   console.log(`      Uploaded: https://youtube.com/watch?v=${ytResult.id} (status: ${process.env.YOUTUBE_PUBLISH_STATUS || "private"})`);
+
+  console.log("      Adding English captions...");
+  const srt = buildSrt(script, duration);
+  fs.writeFileSync(path.join(outDir, "captions.srt"), srt);
+  try {
+    await uploadCaptions({ videoId: ytResult.id, srtContent: srt });
+    console.log("      Captions uploaded.");
+  } catch (err) {
+    // Don't fail the whole run over captions — video is already live/private and usable without them
+    console.error("      Caption upload failed (non-fatal):", err.message);
+  }
 
   console.log("[6/6] Posting to LinkedIn...");
   if (process.env.LINKEDIN_ACCESS_TOKEN) {

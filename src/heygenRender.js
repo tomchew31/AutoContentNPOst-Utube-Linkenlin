@@ -52,7 +52,7 @@ export async function renderAvatarVideo(script, { outputPath }) {
   const videoId = generateData.data.video_id;
 
   // 2. Poll for completion
-  const videoUrl = await pollUntilComplete(videoId, apiKey);
+  const { videoUrl, duration } = await pollUntilComplete(videoId, apiKey);
 
   // 3. Download the finished MP4
   const downloadRes = await fetch(videoUrl);
@@ -61,7 +61,7 @@ export async function renderAvatarVideo(script, { outputPath }) {
   }
   await pipeline(downloadRes.body, fs.createWriteStream(outputPath));
 
-  return outputPath;
+  return { outputPath, duration };
 }
 
 async function pollUntilComplete(
@@ -77,7 +77,7 @@ async function pollUntilComplete(
     const status = data?.data?.status;
 
     if (status === "completed") {
-      return data.data.video_url;
+      return { videoUrl: data.data.video_url, duration: data.data.duration };
     }
     if (status === "failed") {
       throw new Error(

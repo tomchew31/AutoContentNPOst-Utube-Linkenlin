@@ -39,11 +39,20 @@ cp .env.example .env
 2. Create OAuth 2.0 credentials (type: Desktop app) → gives you
    `YOUTUBE_CLIENT_ID` and `YOUTUBE_CLIENT_SECRET`.
 3. Run through the OAuth consent flow **once** for the channel you're
-   publishing to, requesting the `https://www.googleapis.com/auth/youtube.upload`
-   scope. The simplest way is Google's [OAuth Playground](https://developers.google.com/oauthplayground):
-   set your own client ID/secret in its settings, authorize the upload scope,
+   publishing to, requesting **both** of these scopes (captions need a
+   broader scope than just uploading):
+   - `https://www.googleapis.com/auth/youtube.upload`
+   - `https://www.googleapis.com/auth/youtube.force-ssl`
+
+   The simplest way is Google's [OAuth Playground](https://developers.google.com/oauthplayground):
+   set your own client ID/secret in its settings, authorize both scopes above,
    exchange for tokens, and copy the **refresh token** — that's
    `YOUTUBE_REFRESH_TOKEN`. It doesn't expire unless revoked.
+   
+   If you already generated a refresh token before adding captions support,
+   you'll need to redo this step with the extra scope included — the old
+   token won't have permission to upload captions and that step will fail
+   (non-fatally — the video itself still uploads fine either way).
 4. Your app will be in "Testing" mode in Google's console at first, which
    works fine for your own channel; publishing to other people's channels
    would need Google's verification review.
