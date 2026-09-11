@@ -2,7 +2,7 @@ name: Schedule Test
 
 on:
   schedule:
-    - cron: "*/10 * * * *"  # every 10 minutes, purely for testing
+    - cron: "*/5 * * * *"  # every 5 minutes, purely for testing
   workflow_dispatch: {}
 
 jobs:
