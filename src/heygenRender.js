@@ -38,6 +38,10 @@ export async function renderAvatarVideo(script, { outputPath }) {
       voice_id: voiceId,
       resolution: "1080p",
       aspect_ratio: "9:16", // vertical, for Shorts
+      // Test mode produces a free, watermarked video that doesn't use
+      // paid credits — handy while iterating on caption styling etc.
+      // Set HEYGEN_TEST_MODE=true while testing, false/unset for real runs.
+      test: process.env.HEYGEN_TEST_MODE === "true",
     }),
   });
 
