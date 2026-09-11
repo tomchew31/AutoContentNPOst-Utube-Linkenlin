@@ -1,12 +1,10 @@
 name: Daily Avatar Video + LinkedIn Post
 
 on:
-  schedule:
-    # 9:05 AM MYT/SGT = 1:05 AM UTC (offset 5 min past the hour, since
-    # exact-hour schedules are more prone to delay/drop during GitHub's
-    # peak congestion windows)
-    - cron: "5 1 * * *"
-  workflow_dispatch: {} # allows manual "Run workflow" trigger for testing
+  # Native GitHub schedule intentionally disabled — cron-job.org (external)
+  # is the sole trigger now, to avoid double-firing and duplicate posts.
+  # See README for the cron-job.org setup.
+  workflow_dispatch: {} # still allows manual "Run workflow" for testing, and is what cron-job.org calls
 
 jobs:
   publish:
