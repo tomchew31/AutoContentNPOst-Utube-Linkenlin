@@ -5,6 +5,7 @@ import { pickTopic } from "./pickTopic.js";
 import { research } from "./research.js";
 import { generateScript, generateLinkedInPost } from "./generateScript.js";
 import { renderAvatarVideo } from "./heygenRender.js";
+import { createPlaceholderVideo } from "./createPlaceholderVideo.js";
 import { uploadToYouTube } from "./youtubeUpload.js";
 import { postToLinkedIn } from "./linkedinPost.js";
 import { buildSrt } from "./buildSrt.js";
@@ -37,9 +38,17 @@ async function main() {
   }
 
   const videoPath = path.join(outDir, "video.mp4");
-  console.log("[4/7] Rendering avatar video with HeyGen (this can take a few minutes)...");
-  const { duration } = await renderAvatarVideo(script, { outputPath: videoPath });
-  console.log(`      Saved to ${videoPath} (duration: ${duration}s)`);
+  const testMode = process.env.HEYGEN_TEST_MODE === "true";
+  let duration;
+  if (testMode) {
+    console.log("[4/7] HEYGEN_TEST_MODE=true — skipping HeyGen entirely, using a placeholder video instead...");
+    ({ duration } = createPlaceholderVideo(script, { outputPath: videoPath }));
+    console.log(`      Placeholder saved to ${videoPath} (duration: ${duration}s)`);
+  } else {
+    console.log("[4/7] Rendering avatar video with HeyGen (this can take a few minutes)...");
+    ({ duration } = await renderAvatarVideo(script, { outputPath: videoPath }));
+    console.log(`      Saved to ${videoPath} (duration: ${duration}s)`);
+  }
 
   console.log("[5/7] Burning English captions onto the video...");
   const srt = buildSrt(script, duration);
