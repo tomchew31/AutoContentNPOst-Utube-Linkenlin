@@ -67,7 +67,7 @@ export async function renderAvatarVideo(script, { outputPath }) {
 async function pollUntilComplete(
   videoId,
   apiKey,
-  { intervalMs = 10_000, maxAttempts = 60 } = {}
+  { intervalMs = 10_000, maxAttempts = 120 } = {}
 ) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const res = await fetch(`${HEYGEN_BASE}/v3/videos/${videoId}`, {

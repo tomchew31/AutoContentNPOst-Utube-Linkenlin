@@ -84,14 +84,37 @@ Videos upload as **private** by default (`YOUTUBE_PUBLISH_STATUS=private`) so
 you can review in YouTube Studio before anyone sees them. Once you trust the
 output quality, flip it to `public` in the workflow file.
 
-## 4. Automate with GitHub Actions
+## 4. Push to GitHub and add your secrets
 
-1. Push this repo to GitHub.
-2. Add each variable from `.env.example` as a repository secret
-   (Settings → Secrets and variables → Actions).
-3. The workflow (`.github/workflows/daily-video.yml`) runs daily at 9 AM SGT.
-   Trigger it manually first via the "Run workflow" button to confirm it works
-   end to end before trusting the schedule.
+1. Push this repo to GitHub (already done if you're reading this from the
+   live repo).
+2. Add every variable from `.env.example` as a repository secret
+   (Settings → Secrets and variables → Actions → New repository secret).
+   Names must match exactly (e.g. `ANTHROPIC_API_KEY`, `HEYGEN_API_KEY`, etc.)
+   — these are what the workflow file references.
+
+## Scheduling: cron-job.org (not GitHub's native schedule)
+
+GitHub's built-in `schedule:` trigger was unreliable for this repo (stopped
+firing entirely, a known platform-level issue independent of the workflow's
+config). The daily trigger now comes from **cron-job.org** instead, which
+calls the workflow_dispatch API endpoint directly on a real external timer.
+
+**Only run one trigger source at a time.** The workflow file intentionally
+has no `schedule:` block anymore — if you ever re-add one, disable the
+cron-job.org job first, or you'll get duplicate daily videos and double
+HeyGen credit usage.
+
+Setup (already done if you're reading this after initial setup, but here
+for reference):
+1. Fine-grained GitHub token, scoped to just this repo, with "Actions:
+   Read and write" permission.
+2. cron-job.org job: POST to
+   `https://api.github.com/repos/<owner>/<repo>/actions/workflows/daily-video.yml/dispatches`
+   with headers `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`,
+   `Content-Type: application/json`, and body `{"ref":"main"}`.
+3. Schedule: once daily, at your desired time, in your local timezone
+   (cron-job.org lets you pick a timezone directly, no UTC math needed).
 
 ## Notes / things worth deciding before going fully public
 
