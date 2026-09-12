@@ -15,9 +15,11 @@ export async function research(topic) {
       {
         role: "user",
         content: `Research this topic for a short (45-60 second) YouTube video aimed at
-Singapore e-commerce sellers on Shopee, Lazada, and TikTok Shop: "${topic}".
+Southeast Asian businesses that run warehouses or manage inventory — across
+e-commerce (Shopee, Lazada, TikTok Shop), brick-and-mortar/omnichannel retail,
+and broader supply chain and logistics operations: "${topic}".
 
-Find 3-5 concrete, current, specific points (a stat, a platform policy detail,
+Find 3-5 concrete, current, specific points (a stat, an industry practice,
 a common mistake, or a practical tip). Avoid generic advice. Return ONLY a
 JSON array of short strings, one per point, nothing else.`,
       },

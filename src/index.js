@@ -70,8 +70,8 @@ async function main() {
   const ytResult = await uploadToYouTube({
     filePath: uploadPath,
     title: topic.slice(0, 95), // YouTube title limit is 100 chars
-    description: `${script}\n\nPayRecon — Warehouse Management System for Singapore e-commerce sellers.`,
-    tags: ["ecommerce", "singapore", "shopee", "lazada", "tiktokshop", "wms"],
+    description: `${script}\n\nPayRecon — Warehouse Management System for e-commerce, retail, and supply chain teams in Southeast Asia.`,
+    tags: ["warehousemanagement", "supplychain", "retail", "ecommerce", "logistics", "inventorymanagement", "wms"],
   });
   console.log(`      Uploaded: https://youtube.com/watch?v=${ytResult.id} (status: ${process.env.YOUTUBE_PUBLISH_STATUS || "private"})`);
 

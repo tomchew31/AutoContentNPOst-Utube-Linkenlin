@@ -15,7 +15,8 @@ export async function generateScript(topic, researchPoints) {
       {
         role: "user",
         content: `Write a spoken-word script for a 45-60 second talking-avatar video
-for PayRecon, a cloud WMS for Singapore e-commerce sellers.
+for PayRecon, a cloud Warehouse Management System (WMS) used across
+e-commerce, retail, and supply chain/logistics operations in Southeast Asia.
 
 Topic: "${topic}"
 Research points to draw from:
@@ -46,8 +47,10 @@ export async function generateLinkedInPost(topic, researchPoints) {
     messages: [
       {
         role: "user",
-        content: `Write a native LinkedIn post (300-500 words) for PayRecon, a cloud WMS
-for Singapore e-commerce sellers, targeting founders and ops managers.
+        content: `Write a native LinkedIn post (300-500 words) for PayRecon, a cloud
+Warehouse Management System (WMS) used across e-commerce, retail, and supply
+chain/logistics operations in Southeast Asia — targeting founders, ops
+managers, and supply chain/logistics leads.
 
 Topic: "${topic}"
 Research points:

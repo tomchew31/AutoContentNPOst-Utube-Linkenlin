@@ -19,7 +19,7 @@ export function burnCaptions({ videoPath, srtPath, outputPath }) {
 
   const style = [
     "FontName=Arial",
-    "FontSize=12",                 // tuned for a 1080x1920 canvas; adjust if it looks too big/small
+    "FontSize=28",                 // tuned for a 1080x1920 canvas; adjust if it looks too big/small
     "PrimaryColour=&H00FFFFFF",   // white text
     "OutlineColour=&H00000000",   // black outline
     "BorderStyle=1",
